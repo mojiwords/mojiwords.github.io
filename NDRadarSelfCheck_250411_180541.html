@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ND-Radar Self Check</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/recharts/umd/Recharts.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 1rem;
+        background: #f9f9fb;
+        color: #333;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 4px 6px;
+        margin-bottom: 8px;
+      }
+      label {
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+      }
+      .chart,
+      .form {
+        flex: 1 1 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ND-Radar Self Check</h1>
+    <div id="root"></div>
+
+    <script type="text/javascript">
+      const { useState } = React;
+      const {
+        RadarChart,
+        PolarGrid,
+        PolarAngleAxis,
+        PolarRadiusAxis,
+        Radar,
+      } = Recharts;
+
+      const labels = [
+        "🔊 感官敏感",
+        "⚡ 思緒跳躍",
+        "💥 情緒放大",
+        "🏃‍♂️ 行動衝動",
+        "🎭 社交過度",
+        "🎯 注意過度",
+        "🪵 感官遲鈍",
+        "🐌 思緒遲滯",
+        "🧊 情緒壓抑",
+        "🐢 行動遲緩",
+        "🐚 社交退縮",
+        "🌫️ 注意渙散"
+      ];
+
+      function App() {
+        const [scores, setScores] = useState(Array(12).fill(3));
+        const [note, setNote] = useState("");
+        const [label, setLabel] = useState("事件／日期");
+
+        const data = labels.map((subject, i) => ({
+          subject,
+          A: scores[i],
+          fullMark: 5,
+        }));
+
+        const updateScore = (i, val) => {
+          const newScores = [...scores];
+          newScores[i] = Number(val);
+          setScores(newScores);
+        };
+
+        return (
+          React.createElement("div", { className: "container" },
+            React.createElement("div", { className: "chart" },
+              React.createElement(RadarChart, {
+                  cx: "50%",
+                  cy: "50%",
+                  outerRadius: "80%",
+                  width: 500,
+                  height: 500,
+                  data
+                },
+                React.createElement(PolarGrid, null),
+                React.createElement(PolarAngleAxis, {
+                  dataKey: "subject",
+                  fontSize: 12,
+                }),
+                React.createElement(PolarRadiusAxis, {
+                  angle: 30,
+                  domain: [0, 5],
+                }),
+                React.createElement(Radar, {
+                  name: "狀態",
+                  dataKey: "A",
+                  stroke: "#8884d8",
+                  fill: "#8884d8",
+                  fillOpacity: 0.6,
+                })
+              )
+            ),
+            React.createElement("div", { className: "form" },
+              React.createElement("input", {
+                value: label,
+                onChange: (e) => setLabel(e.target.value),
+                placeholder: "事件／日期"
+              }),
+              React.createElement("div", { className: "input-grid" },
+                labels.map((lbl, i) =>
+                  React.createElement("div", { key: i },
+                    React.createElement("label", null, lbl),
+                    React.createElement("input", {
+                      type: "number",
+                      min: 0,
+                      max: 5,
+                      value: scores[i],
+                      onChange: (e) => updateScore(i, e.target.value)
+                    })
+                  )
+                )
+              ),
+              React.createElement("textarea", {
+                value: note,
+                onChange: (e) => setNote(e.target.value),
+                placeholder: "備註欄（發生什麼事？有什麼感受？）",
+                rows: 5
+              })
+            )
+          )
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+    </script>
+  </body>
+</html>
